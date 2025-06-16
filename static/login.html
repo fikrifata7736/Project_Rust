@@ -23,6 +23,14 @@
       color: #0d6efd;
       font-weight: bold;
     }
+    .dummy-credentials {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -31,6 +39,13 @@
       <div class="col-md-4">
         <div class="login-container">
           <h3 class="text-center mb-4 page-header">Login</h3>
+         
+          <div class="dummy-credentials">
+            <strong>Demo Credentials:</strong><br>
+            Email: admin@example.com<br>
+            Password: password123
+          </div>
+          
           <form id="loginForm" novalidate>
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
@@ -85,11 +100,11 @@
 
         if (response.ok) {
           const user = await response.json();
-          message.innerHTML = `<span class="text-success">Welcome, ${user.email}!</span>`;
-          // dashbord to homepage
-          // setTimeout(() => {
-          //   window.location.href = '/dashboard';
-          // }, 1500);
+          message.innerHTML = `<span class="text-success">Welcome, ${user.email}! Redirecting...</span>`;
+          // Redirect dashboard
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1500);
         } else if (response.status === 401) {
           message.innerHTML = "<span class='text-danger'>Invalid email or password.</span>";
         } else {
@@ -101,12 +116,11 @@
       }
     });
 
-    // Add this to check if CSS is loading
+
     document.addEventListener('DOMContentLoaded', function() {
       console.log('Page loaded. Checking if styles are applied...');
     });
   </script>
-
 
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"

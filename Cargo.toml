@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+mongodb = "2.8.1"
+tokio = { version = "1", features = ["full"] }
 actix-web = "4.3.0"
 actix-files = "0.6.2"  # Add this for serving static files
 serde = { version = "1.0", features = ["derive"] }

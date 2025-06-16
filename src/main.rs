@@ -21,6 +21,14 @@ struct UserResponse {
     email: String,
 }
 
+// Dashboard page
+#[get("/dashboard")]
+async fn dashboard_page() -> impl Responder {
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(include_str!("../static/dashboard.html"))
+}
+
 // login page
 #[get("/login")]
 async fn login_page() -> impl Responder {
@@ -32,19 +40,31 @@ async fn login_page() -> impl Responder {
 // Handle Login 
 #[post("/auth/login")]
 async fn login(data: web::Json<AuthData>) -> impl Responder {
-    let users = USERS.lock().unwrap();
+    println!("Login attempt: email={}, password={}", data.email, data.password);
     
+    // Check dummy credentials first (simple string comparison)
+    if data.email == "admin@example.com" && data.password == "password123" {
+        println!("Dummy login successful");
+        return HttpResponse::Ok().json(UserResponse { 
+            email: data.email.clone() 
+        });
+    }
+    
+    // Then check registered users
+    let users = USERS.lock().unwrap();
     if let Some(stored_hash) = users.get(&data.email) {
         if verify(&data.password, stored_hash).unwrap_or(false) {
+            println!("Regular user login successful");
             return HttpResponse::Ok().json(UserResponse { 
                 email: data.email.clone() 
             });
         }
     }
     
-    HttpResponse::Unauthorized().json(web::Json(serde_json::json!({
+    println!("Login failed for email: {}", data.email);
+    HttpResponse::Unauthorized().json(serde_json::json!({
         "error": "Invalid email or password"
-    })))
+    }))
 }
 
 // Registration Page
@@ -90,6 +110,9 @@ async fn index() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("Server running at http://127.0.0.1:3000");
+    println!("Dummy login credentials:");
+    println!("Email: admin@example.com");
+    println!("Password: password123");
     
     HttpServer::new(|| {
         App::new()
@@ -101,6 +124,7 @@ async fn main() -> std::io::Result<()> {
             .service(login)
             .service(register_page)
             .service(register)
+            .service(dashboard_page)
             // Serve static files (CSS, JS, images)
             .service(Files::new("/static", "./static").show_files_listing())
             // This is important for Bootstrap files if you want to serve them locally
